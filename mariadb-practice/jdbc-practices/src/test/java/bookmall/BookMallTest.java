@@ -6,6 +6,18 @@ import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
 
+import bookmall.dao.BookDao;
+import bookmall.dao.CartDao;
+import bookmall.dao.CategoryDao;
+import bookmall.dao.OrderDao;
+import bookmall.dao.UserDao;
+import bookmall.vo.BookVo;
+import bookmall.vo.CartVo;
+import bookmall.vo.CategoryVo;
+import bookmall.vo.OrderBookVo;
+import bookmall.vo.OrderVo;
+import bookmall.vo.UserVo;
+
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.junit.jupiter.api.Assertions.assertNotNull;

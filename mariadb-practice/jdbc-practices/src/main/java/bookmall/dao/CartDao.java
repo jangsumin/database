@@ -1,12 +1,15 @@
-package bookmall;
+package bookmall.dao;
 
 import java.sql.Connection;
 import java.sql.DriverManager;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.sql.Statement;
 import java.util.ArrayList;
 import java.util.List;
+
+import bookmall.vo.CartVo;
 
 public class CartDao {
 	// connect
@@ -26,16 +29,10 @@ public class CartDao {
 
 	// insert cart
 	public void insert(CartVo vo) {
-		Connection conn = null;
-		PreparedStatement pstmt = null;
+		String sql = "insert into cart values (?, ?, ?, ?, ?)";
 
-		try {
-			conn = getConnection();
-			
+		try (Connection conn = getConnection(); PreparedStatement pstmt = conn.prepareStatement(sql);) {
 			setBookTitleAndPrice(vo);
-
-			String sql = "insert into cart values (?, ?, ?, ?, ?)";
-			pstmt = conn.prepareStatement(sql);
 
 			pstmt.setInt(1, vo.getQuantity());
 			pstmt.setString(2, vo.getBookTitle());
@@ -46,30 +43,16 @@ public class CartDao {
 			pstmt.executeUpdate();
 		} catch (SQLException e) {
 			System.out.println("드라이버 로딩 실패:" + e);
-		} finally {
-			try {
-				if (conn != null)
-					conn.close();
-				if (pstmt != null)
-					pstmt.close();
-			} catch (SQLException e) {
-				e.printStackTrace();
-			}
 		}
 	}
 
 	public void setBookTitleAndPrice(CartVo vo) {
-		Connection conn = null;
-		PreparedStatement pstmt = null;
-		ResultSet rs = null;
+		String sql = "select title, price from book where no = ?";
 
-		try {
-			conn = getConnection();
-			String sql = "select title, price from book where no = ?";
-			pstmt = conn.prepareStatement(sql);
+		try (Connection conn = getConnection(); PreparedStatement pstmt = conn.prepareStatement(sql);) {
 			pstmt.setInt(1, vo.getBookNo());
 
-			rs = pstmt.executeQuery();
+			ResultSet rs = pstmt.executeQuery();
 			if (rs.next()) {
 				String bookTitle = rs.getString(1);
 				int price = rs.getInt(2);
@@ -79,30 +62,20 @@ public class CartDao {
 			}
 		} catch (SQLException e) {
 			System.out.println("error:" + e);
-		} finally {
-			try {
-				if (rs != null)
-					rs.close();
-			} catch (SQLException e) {
-				e.printStackTrace();
-			}
 		}
 	}
 
 	// find cart
 	public List<CartVo> findByUserNo(int no) {
 		List<CartVo> list = new ArrayList<>();
-		Connection conn = null;
-		PreparedStatement pstmt = null;
-		ResultSet rs = null;
+		String sql = "select book_no, quantity, book_title, price from cart where user_no = ?";
 
-		try {
-			conn = getConnection();
-			String sql = "select book_no, quantity, book_title, price from cart where user_no = ?";
-			pstmt = conn.prepareStatement(sql);
+		try (Connection conn = getConnection();
+				PreparedStatement pstmt = conn.prepareStatement(sql);
+				Statement stmt = conn.createStatement();) {
 			pstmt.setInt(1, no);
 
-			rs = pstmt.executeQuery();
+			ResultSet rs = pstmt.executeQuery();
 			while (rs.next()) {
 				int bookNo = rs.getInt(1);
 				int quantity = rs.getInt(2);
@@ -119,13 +92,6 @@ public class CartDao {
 			}
 		} catch (SQLException e) {
 			System.out.println("error:" + e);
-		} finally {
-			try {
-				if (rs != null)
-					rs.close();
-			} catch (SQLException e) {
-				e.printStackTrace();
-			}
 		}
 
 		return list;
@@ -133,30 +99,15 @@ public class CartDao {
 
 	// delete cart
 	public void deleteByUserNoAndBookNo(int userNo, int bookNo) {
-		Connection conn = null;
-		PreparedStatement pstmt = null;
+		String sql = "delete from cart where user_no = ? and book_no = ?";
 
-		try {
-			conn = getConnection();
-
-			String sql = "delete from cart where user_no = ? and book_no = ?";
-			pstmt = conn.prepareStatement(sql);
-
+		try (Connection conn = getConnection(); PreparedStatement pstmt = conn.prepareStatement(sql);) {
 			pstmt.setInt(1, userNo);
 			pstmt.setInt(2, bookNo);
 
 			pstmt.executeUpdate();
 		} catch (SQLException e) {
 			System.out.println("드라이버 로딩 실패:" + e);
-		} finally {
-			try {
-				if (conn != null)
-					conn.close();
-				if (pstmt != null)
-					pstmt.close();
-			} catch (SQLException e) {
-				e.printStackTrace();
-			}
 		}
 	}
 

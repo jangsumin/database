@@ -1,4 +1,4 @@
-package bookmall;
+package bookmall.dao;
 
 import java.sql.Connection;
 import java.sql.DriverManager;
@@ -8,6 +8,8 @@ import java.sql.SQLException;
 import java.sql.Statement;
 import java.util.ArrayList;
 import java.util.List;
+
+import bookmall.vo.CategoryVo;
 
 public class CategoryDao {
 
@@ -28,55 +30,33 @@ public class CategoryDao {
 
 	// insert category
 	public void insert(CategoryVo vo) {
-		Connection conn = null;
-		PreparedStatement pstmt = null;
-		Statement stmt = null;
-		ResultSet rs = null;
+		String insertQuery = "insert into category values(null, ?)";
+		String selectQuery = "select last_insert_id() from dual";
 
-		try {
-			conn = getConnection();
+		try (Connection conn = getConnection();
+				PreparedStatement pstmt = conn.prepareStatement(insertQuery);
+				Statement stmt = conn.createStatement();) {
 
-			String insertQuery = "insert into category values(null, ?)";
-			pstmt = conn.prepareStatement(insertQuery);
 			pstmt.setString(1, vo.getCategoryName());
 			pstmt.executeUpdate();
 
-			String selectQuery = "select last_insert_id() from dual";
-			stmt = conn.createStatement();
-			rs = stmt.executeQuery(selectQuery);
+			ResultSet rs = stmt.executeQuery(selectQuery);
 			if (rs.next()) {
 				int no = rs.getInt(1);
 				vo.setNo(no);
 			}
 		} catch (SQLException e) {
 			System.out.println("드라이버 로딩 실패:" + e);
-		} finally {
-			try {
-				if (conn != null)
-					conn.close();
-				if (pstmt != null)
-					pstmt.close();
-				if (stmt != null)
-					stmt.close();
-			} catch (SQLException e) {
-				e.printStackTrace();
-			}
 		}
 	}
 
 	// find all category
 	public List<CategoryVo> findAll() {
 		List<CategoryVo> list = new ArrayList<>();
-		Connection conn = null;
-		PreparedStatement pstmt = null;
-		ResultSet rs = null;
+		String sql = "select category_name from category";
 
-		try {
-			conn = getConnection();
-			String sql = "select category_name from category";
-			pstmt = conn.prepareStatement(sql);
-
-			rs = pstmt.executeQuery();
+		try (Connection conn = getConnection(); PreparedStatement pstmt = conn.prepareStatement(sql);) {
+			ResultSet rs = pstmt.executeQuery();
 			while (rs.next()) {
 				String categoryName = rs.getString(1);
 
@@ -87,13 +67,6 @@ public class CategoryDao {
 			}
 		} catch (SQLException e) {
 			System.out.println("error:" + e);
-		} finally {
-			try {
-				if (rs != null)
-					rs.close();
-			} catch (SQLException e) {
-				e.printStackTrace();
-			}
 		}
 
 		return list;
@@ -101,29 +74,14 @@ public class CategoryDao {
 
 	// delete category
 	public void deleteByNo(int no) {
-		Connection conn = null;
-		PreparedStatement pstmt = null;
+		String sql = "delete from category where no = ?";
 
-		try {
-			conn = getConnection();
-
-			String sql = "delete from category where no = ?";
-			pstmt = conn.prepareStatement(sql);
-
+		try (Connection conn = getConnection(); PreparedStatement pstmt = conn.prepareStatement(sql);) {
 			pstmt.setInt(1, no);
 
 			pstmt.executeUpdate();
 		} catch (SQLException e) {
 			System.out.println("드라이버 로딩 실패:" + e);
-		} finally {
-			try {
-				if (conn != null)
-					conn.close();
-				if (pstmt != null)
-					pstmt.close();
-			} catch (SQLException e) {
-				e.printStackTrace();
-			}
 		}
 	}
 
